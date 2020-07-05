@@ -1,5 +1,7 @@
 ## Coupled Epidemics
 
+### Installing and running the software
+
 This software uses a quick and dirty combination of [Python] and [GNU Make]. The
 python scripts serve two purposes:
 
@@ -17,7 +19,35 @@ then it is simply typing,
 
     make
 
-in this top-level directtory.
+in this top-level directory.
+
+### Example - second wave
+
+This is a very simple example of a stratified SEIR model. There are two age strata. The first
+makes up 40% of the population, and the second, 60%. The contact matrix is asymmetric,
+$$
+c = \left[
+  \begin{array}{cc}
+    13.0 & 8.0 \\
+    4.0 & 10.0
+  \end{array}
+\right]
+$$
+Individuals in the first strata have more contact with each other than individuals in the 
+second strata. They are also more likely to have contact first with second than second with
+first.
+
+After some time, $c$ is reduced by 70%, representing a lock-down, and after a longer time
+it is then increased to 80% of its initial magnitude.
+
+The result:
+
+<image src="https://github.com/wwaites/coupled-epidemics/raw/master/plots/second-wave.png" />
+
+And using $c^T$ in place of $c$,
+<image src="https://github.com/wwaites/coupled-epidemics/raw/master/plots/second-wave-T.png" />
+
+<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 
 [Python]: https://python.org/
 [GNU Make]: https://www.gnu.org/software/make
