@@ -24,8 +24,8 @@ The infection rule looks like,
 $$
 \mathtt{
   P(x\{s\}, age\{=\mathrm{i}\}),
-  P(x\{i\}, age\{=\mathrm{j}\}) ->
-  P(x\{e\}), P(x\{i\}) @
+  P(x\{i\}, age\{=\mathrm{j}\}) \rightarrow
+  P(x\{e\}), P(x\{i\}) \;@\;
 } \frac{\beta c_{ij}}{N}
 $$
 
