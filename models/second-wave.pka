@@ -15,8 +15,8 @@
 import numpy as np
 from itertools import product
 
-strata = 2
 dist   = np.array([0.4, 0.6])
+strata = len(dist)
 
 c = np.array([[13.0, 8.0],
               [4.0, 10.0]])
