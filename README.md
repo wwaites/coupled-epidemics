@@ -1,27 +1,6 @@
 ## Coupled Epidemics
 
-### Installing and running the software
-
-This software uses a quick and dirty combination of [Python] and [GNU Make]. The
-python scripts serve two purposes:
-
-  1. `scripts/stratify` allows python fragments and iteration to be embedded in [Kappa] models
-  2. post-processing of the data (`scripts/combine`, and `scripts/coupled-epidemics-caseplot`)
-
-To get the dependencies, doing
-
-    python setup.py install
-
-should be sufficient.
-
-To generate the data and plots, you must have [KaSim] and [GNU Parallel] installed in addition, and
-then it is simply typing,
-
-    make
-
-in this top-level directory.
-
-### Example - second wave
+### A second wave
 
 This is a very simple example of a stratified SEIR model with interventions changing the
 contact rate in such a way as to produce a [two-wave epidemic]. There are two age strata.
@@ -57,6 +36,28 @@ The result:
 
 And using \\(c^T\\) in place of \\(c\\),
 <image src="https://wwaites.github.io/coupled-epidemics/plots/second-wave-T.png" />
+
+### Installing and running the software
+
+This software uses a quick and dirty combination of [Python] and [GNU Make]. The
+python scripts serve two purposes:
+
+  1. `scripts/stratify` allows python fragments and iteration to be embedded in [Kappa] models
+  2. post-processing of the data (`scripts/combine`, and `scripts/coupled-epidemics-caseplot`)
+
+To get the dependencies, doing
+
+    python setup.py install
+
+should be sufficient.
+
+To generate the data and plots, you must have [KaSim] and [GNU Parallel] installed in addition, and
+then it is simply typing,
+
+    make
+
+in this top-level directory.
+
 
 [Python]: https://python.org/
 [GNU Make]: https://www.gnu.org/software/make
