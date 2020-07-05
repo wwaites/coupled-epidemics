@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+
+from sys import stdin
+import re
+
+def keval(s, **environ):
+    pieces = []
+    state = "kappa"
+    escape = False
+    for c in s:
+        if state == "kappa":
+            if escape:
+                pieces.append(c)
+                escape = False
+                continue
+            elif c == "\\":
+                escape = True
+                continue
+            elif c == "$":
+                acc = []
+                state = "python"
+                continue
+            pieces.append(c)
+        elif state == "python":
+            if c == "$":
+                piece = "".join(acc)
+                pieces.append(str(eval(piece, environ)))
+                state = "kappa"
+                continue
+            acc.append(c)
+    return "".join(pieces)
+
+
+state = "kappa"
+for line in map(lambda x: x.rstrip(), stdin.readlines()):
+    if state == "kappa":
+        if line.startswith("// python"):
+            acc = []
+            state = "python"
+            continue
+        if line.startswith("// iterate"):
+            acc = []
+            dec = line[11:]
+            state = "iterate"
+            continue
+        print(line)
+    if state == "python":
+        if line == "// end python":
+            exec("\n".join(acc))
+            state = "kappa"
+        acc.append(line)
+    if state == "iterate":
+        if line == "// end iterate":
+            code = [dec] + ['    print(keval({}, **locals()))'.format(repr(s)) for s in acc]
+            exec("\n".join(code))
+            state = "kappa"
+        acc.append(line)
+

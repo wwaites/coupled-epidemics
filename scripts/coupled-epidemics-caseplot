@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+import pandas as pd
+from sys import argv
+import os
+
+
+colours = [mcolors.to_rgb(c) for c in mcolors.TABLEAU_COLORS.values()]
+
+base = argv[1]
+
+avg = pd.read_csv(base + "-avg.tsv", delimiter="\t")
+std = pd.read_csv(base + "-std.tsv", delimiter="\t")
+
+fig, axes = plt.subplots(2,4, figsize=(24,12))
+
+((ax_s, ax_e, ax_i, ax_r), (ax_ss, ax_se, ax_si, ax_sr)) = axes
+
+def plot(ax, col, label, colour):
+    ax.plot(avg["t"], avg[col], lw=1, color=colour, label=label)
+    ax.fill_between(avg["t"], avg[col], avg[col]+2*std[col], color=list(colour) + [0.15])
+    ax.fill_between(avg["t"], avg[col], avg[col]-2*std[col], color=list(colour) + [0.15])
+    ax.fill_between(avg["t"], avg[col], avg[col]+std[col], color=list(colour) + [0.3])
+    ax.fill_between(avg["t"], avg[col], avg[col]-std[col], color=list(colour) + [0.3])
+
+plot(ax_s, "S", "P(x{s})", colours[0])
+ax_s.set_title("Susceptible")
+
+plot(ax_e, "E", "P(x{e})", colours[0])
+ax_e.set_title("Exposed")
+
+plot(ax_i, "I", "P(x{i})", colours[0])
+ax_i.set_title("Infectious")
+
+plot(ax_r, "R", "P(x{r})", colours[0])
+ax_r.set_title("Removed")
+
+for i in range(2):
+    plot(ax_ss, "S%d" % i, "P(x{s}, age{=%d})" %i, colours[i])
+    plot(ax_se, "E%d" % i, "P(x{e}, age{=%d})" %i, colours[i])
+    plot(ax_si, "I%d" % i, "P(x{i}, age{=%d})" %i, colours[i])
+    plot(ax_sr, "R%d" % i, "P(x{r}, age{=%d})" %i, colours[i])
+ax_ss.set_title("Stratified susceptible")
+ax_se.set_title("Stratified exposed")
+ax_si.set_title("Stratified infectious")
+ax_sr.set_title("Stratified removed")
+
+for ax in axes.flatten():
+    ax.set_xlim(0)
+    ax.set_ylim(0)
+    ax.legend()
+
+title = " ".join(base.split("-"))
+fig.suptitle(title)
+
+plt.savefig("{}.png".format(base))

@@ -1,0 +1,89 @@
+// -*- mode: kappa -*-
+
+// standard SEIR constants
+%var: beta   0.03    // probability of infection from contact
+%var: alpha  0.2     // progression from exposed to infectious
+%var: gamma  0.1429  // progression from infectious to removed
+
+////
+//// fragment of python code, set up constants for generating rules.
+//// this is a stratified model with the population binned into
+//// different groups and a contact matrix (units are number of
+//// contacts per day) is given.
+////
+// python
+import numpy as np
+from itertools import product
+
+strata = 2
+dist   = np.array([0.4, 0.6])
+
+c = np.array([[13.0, 8.0],
+              [4.0, 10.0]])
+// end python
+
+////
+//// this construct iterates, the for loop is interpreted as python
+//// and the interior of the iteration has variables substituted
+//// each iterationw. variables are between $$. this generates a
+//// c variable for the cartesian product of the number of strata
+////
+// iterate for (i, j) in product(range(strata), range(strata)):
+%var: c$i$$j$     $c[i,j]$
+// end iterate
+
+// individuals have disease progression, and an age band
+%agent: P(x{s e i r} age{=0 / += 2})
+
+// progression of individuals
+'progression'   P(x{e/i}) @ alpha
+'removal'       P(x{i/r}) @ gamma
+
+////
+//// the infection rule is repeated for each possible combination
+////
+// iterate for (i, j) in product(range(strata), range(strata)):
+'infection_$i$$j$'  P(x{s}, age{=$i$}), P(x{i}, age{=$j$}) -> P(x{e}), P(x{i})   @ beta * c$i$$j$ / N
+// end iterate
+                
+%obs: S    |P(x{s})|
+%obs: E    |P(x{e})|
+%obs: I    |P(x{i})|
+%obs: R    |P(x{r})|
+
+////
+//// output the individual strata as well
+////
+// iterate for i in range(strata):
+%obs: S$i$    |P(x{s}, age{=$i$})|
+%obs: E$i$    |P(x{e}, age{=$i$})|
+%obs: I$i$    |P(x{i}, age{=$i$})|
+%obs: R$i$    |P(x{r}, age{=$i$})|
+// end iterate
+
+// variables for population size and initialisation
+%var: N      100000
+// initially infectious
+%var: INIT_I 0.001*N
+// initially susceptible
+%var: INIT_S N - INIT_I
+
+////
+//// initialise the population according to the distribution given
+////
+// iterate for i in range(strata):
+%init: INIT_I*$dist[i]$ P(x{i}, age{=$i$})
+%init: INIT_S*$dist[i]$ P(x{s}, age{=$i$})
+// end iterate
+
+//// lock down after some period of time
+%mod: alarm 45 do
+// iterate for (i, j) in product(range(strata), range(strata)):
+    \$UPDATE c$i$$j$ $c[i,j]*0.3$;
+// end iterate
+
+//// release to nearly full contact
+%mod: alarm 90 do
+// iterate for (i, j) in product(range(strata), range(strata)):
+    \$UPDATE c$i$$j$ $c[i,j]*0.8$;
+// end iterate
