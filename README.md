@@ -45,7 +45,7 @@ python scripts serve two purposes:
   1. `scripts/stratify` allows python fragments and iteration to be embedded in [Kappa] models
   2. post-processing of the data (`scripts/combine`, and `scripts/coupled-epidemics-caseplot`)
 
-To get the dependencies, doing
+To get the python dependencies (chiefly [NumPy], [Pandas] and [Matplotlib]), doing
 
     python setup.py install
 
@@ -58,12 +58,14 @@ then it is simply typing,
 
 in this top-level directory.
 
-
 [Python]: https://python.org/
 [GNU Make]: https://www.gnu.org/software/make
 [GNU Parallel]: https://www.gnu.org/software/parallel
 [Kappa]: https://kappalanguage.org/
 [KaSim]: https://kappalanguage.org/download
 [two-wave epidemic]: models/second-wave.pka
+[NumPy]: https://numpy.org/
+[Pandas]: https://pandas.pydata.org/
+[Matplotlib]: https://matplotlib.org/
 
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
