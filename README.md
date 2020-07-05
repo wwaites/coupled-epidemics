@@ -19,6 +19,15 @@ $$
 Individuals in the first strata have more contact with each other than individuals in the 
 second strata. They are also more likely to have contact first with second than second with
 first.
+The infection rule looks like,
+
+$$
+\mathtt{
+  P(x\{s\}, age\{=\mathrm{i}\}),
+  P(x\{i\}, age\{=\mathrm{j}\}) ->
+  P(x\{e\}), P(x\{i\}) @
+} \frac{\beta c_{ij}}{N}
+$$
 
 After some time, \\(c\\) is reduced by 70%, representing a lock-down, and after a longer time
 it is then increased to 80% of its initial magnitude.
