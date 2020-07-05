@@ -23,8 +23,10 @@ in this top-level directory.
 
 ### Example - second wave
 
-This is a very simple example of a stratified SEIR model. There are two age strata. The first
-makes up 40% of the population, and the second, 60%. The contact matrix is asymmetric,
+This is a very simple example of a stratified SEIR model with interventions changing the
+contact rate in such a way as to produce a [two-wave epidemic]. There are two age strata.
+The first makes up 40% of the population, and the second, 60%. The contact matrix is
+asymmetric,
 
 $$
 c = \left[
@@ -53,8 +55,8 @@ And using $c^T$ in place of $c$,
 [GNU Parallel]: https://www.gnu.org/software/parallel
 [Kappa]: https://kappalanguage.org/
 [KaSim]: https://kappalanguage.org/download
+[two-wave epidemic]: models/second-wave.pka
 
-<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 <script type="text/javascript">
 window.MathJax = {
   tex: {
@@ -62,4 +64,5 @@ window.MathJax = {
   }
 };
 </script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 
