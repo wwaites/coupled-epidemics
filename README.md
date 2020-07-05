@@ -41,13 +41,13 @@ Individuals in the first strata have more contact with each other than individua
 second strata. They are also more likely to have contact first with second than second with
 first.
 
-After some time, $c$ is reduced by 70%, representing a lock-down, and after a longer time
+After some time, \\(c\\) is reduced by 70%, representing a lock-down, and after a longer time
 it is then increased to 80% of its initial magnitude.
 
 The result:
 <image src="https://wwaites.github.io/coupled-epidemics/plots/second-wave.png" />
 
-And using $c^T$ in place of $c$,
+And using \\(c^T\\) in place of \\(c\\),
 <image src="https://wwaites.github.io/coupled-epidemics/plots/second-wave-T.png" />
 
 [Python]: https://python.org/
@@ -57,12 +57,4 @@ And using $c^T$ in place of $c$,
 [KaSim]: https://kappalanguage.org/download
 [two-wave epidemic]: models/second-wave.pka
 
-<script type="text/javascript">
-window.MathJax = {
-  tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']]
-  }
-};
-</script>
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-
