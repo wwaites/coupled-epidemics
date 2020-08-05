@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+import pandas as pd
+from sys import argv
+import os
+
+
+colours = [mcolors.to_rgb(c) for c in mcolors.TABLEAU_COLORS.values()]
+
+base = argv[1]
+
+avg = pd.read_csv(base + "-avg.tsv", delimiter="\t")
+std = pd.read_csv(base + "-std.tsv", delimiter="\t")
+
+fig, axes = plt.subplots(2,4, figsize=(24,12))
+
+((ax_ss, ax_se, ax_si, ax_sr), (ax_es, ax_ee, ax_ei, ax_er)) = axes
+
+def plot(ax, col, label, colour):
+    ax.plot(avg["t"], avg[col], lw=1, color=colour, label=label)
+    ax.fill_between(avg["t"], avg[col], avg[col]+2*std[col], color=list(colour) + [0.15])
+    ax.fill_between(avg["t"], avg[col], avg[col]-2*std[col], color=list(colour) + [0.15])
+    ax.fill_between(avg["t"], avg[col], avg[col]+std[col], color=list(colour) + [0.3])
+    ax.fill_between(avg["t"], avg[col], avg[col]-std[col], color=list(colour) + [0.3])
+
+plot(ax_ss, "S0", "P(x{s}, part{sco})", colours[0])
+plot(ax_se, "E0", "P(x{e}, part{sco})", colours[0])
+plot(ax_si, "I0", "P(x{i}, part{sco})", colours[0])
+plot(ax_sr, "R0", "P(x{r}, part{sco})", colours[0])
+ax_ss.set_title("Scotland susceptible")
+ax_se.set_title("Scotland exposed")
+ax_si.set_title("Scotland infectious")
+ax_sr.set_title("Scotland removed")
+
+plot(ax_es, "S1", "P(x{s}, part{eng})", colours[0])
+plot(ax_ee, "E1", "P(x{e}, part{eng})", colours[0])
+plot(ax_ei, "I1", "P(x{i}, part{eng})", colours[0])
+plot(ax_er, "R1", "P(x{r}, part{eng})", colours[0])
+ax_es.set_title("England susceptible")
+ax_ee.set_title("England exposed")
+ax_ei.set_title("England infectious")
+ax_er.set_title("England removed")
+
+for ax in axes.flatten():
+    ax.set_xlim(0)
+    ax.set_ylim(0)
+    ax.legend()
+
+title = " ".join(base.split("-"))
+fig.suptitle(title)
+
+plt.savefig("{}.png".format(base))

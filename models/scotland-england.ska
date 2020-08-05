@@ -5,6 +5,13 @@
 %var: alpha  0.2     // progression from exposed to infectious
 %var: gamma  0.1429  // progression from infectious to removed
 
+// covid natural history constants
+%var: asym   0.7     // proportion of infections that are asymptomatic
+
+// behavioural constants
+%var: iso    1       // symptomatics isolate within a day
+%var: reopen 1       // reopen the border or not
+
 ////
 //// fragment of python code, set up constants for generating rules.
 //// this is a stratified model with the population binned into
@@ -15,20 +22,27 @@
 import numpy as np
 from itertools import product
 
-dist  = np.array([0.1, 0.9])
+# we have two partitions or spatial compartments
 parts = ["sco", "eng"]
+# with population distributed 1:9 between them
+dist  = np.array([0.1, 0.9])
 n     = len(parts)
 
+# the initial contact rate in each partition
 c     = np.array([13.0, 13.0])
+# the contact rate after unlocking in each partition
 d     = np.array([8.0,  10.0])
-t     = np.array([[0, 0.001],
-                  [0.0001, 0]])
+# the transport matrix from one partition to the other
+t     = np.array([[0, 0.03],
+                  [0.03, 0]])
 // end python
 
+//// enumerate the contact rates for each partition
 // iterate for i in range(n):
 %var: c$i$     $c[i]$
 // end iterate
 
+//// enumerate the transport rates between each partition
 // iterate for (i, j) in [(i, j) for i in range(n) for j in range(n) if i != j]:
 %var: t$i$$j$  $t[i,j]$
 // end iterate
@@ -38,15 +52,21 @@ t     = np.array([[0, 0.001],
 %agent: P(x{s e i r} sym{y n} iso{y n} part{eng sco})
 
 // progression of individuals
-'progression'   P(x{e/i}) @ alpha
-'removal'       P(x{i/r}) @ gamma
+'progression_asym' P(x{e/i}, sym{#/n}) @ alpha * asym
+'progression_sym'  P(x{e/i}, sym{#/y}) @ alpha * (1 - asym)
+'removal'          P(x{i/r}) @ gamma
 
+// isolation
+'isolation'  P(x{i}, sym{y}, iso{n/y}) @ iso
+
+//// infection rules for each partition
 // iterate for i in range(n):
-'infection_$i$'  P(x{s/e}, iso{n}, part{$parts[i]$}), P(x{i}, iso{n}, part{$parts[i]$}) @ beta * c$i$ / p$i$
+'infection_$i$'  P(x{s/e}, iso{n}, part{$parts[i]$}), P(x{i}, iso{n}, part{$parts[i]$}) @ beta * c$i$ / pop$i$
 // end iterate
 
+//// transport rules between each partition
 // iterate for (i, j) in [(i, j) for i in range(n) for j in range(n) if i != j]:
-'transport_$i$$j$' P(iso{n}, part{$parts[i]$/$parts[j]$}) @ t$i$$j$
+'transport_$i$$j$' P(iso{n}, part{$parts[i]$/$parts[j]$}) @ t$i$$j$ * pop$j$ / (pop$i$ + pop$j$)
 // end iterate
 
 %obs: S    |P(x{s})|
@@ -76,9 +96,10 @@ t     = np.array([[0, 0.001],
 %init: INIT_S*$dist[i]$ P(x{s}, sym{n}, iso{n}, part{$parts[i]$})
 // end iterate
 
+//// keep track of the current population of each partition
 // iterate for i in range(n):
-%var: p$i$ $dist[i]$*N
-%mod: [true] do \$UPDATE p$i$ |P(part{$parts[i]$})|; repeat [true]
+%var: pop$i$ $dist[i]$*N
+%mod: [true] do \$UPDATE pop$i$ |P(part{$parts[i]$})|; repeat [true]
 // end iterate
 
 //// lock down
@@ -98,5 +119,5 @@ t     = np.array([[0, 0.001],
 // end iterate
 //// and open the border
 // iterate for (i, j) in [(i, j) for i in range(n) for j in range(n) if i != j]:
-    \$UPDATE t$i$$j$ $t[i,j]$;
+    \$UPDATE t$i$$j$ $t[i,j]$ * reopen;
 // end iterate

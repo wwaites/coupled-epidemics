@@ -5,11 +5,15 @@ MAXMEM?=2097152
 PROCS?=
 MODELS=../models
 SCRIPTS=../scripts
+PLOT?=coupled-epidemics-caseplot
 KASIM=KaSim -mode batch -u time -p 1 --no-log
 
 all:
 	${MAKE} MODEL=second-wave second-wave-avg.tsv
 	${MAKE} MODEL=scotland-england scotland-england-avg.tsv
+	${MAKE} PLOT=coupled-epidemics-scoeng scotland-england.png
+	${MAKE} MODEL=scotland-england ARGS="-var reopen 0" scotland-england-notransport-avg.tsv
+	${MAKE} PLOT=coupled-epidemics-scoeng scotland-england-notransport.png
 
 clean:
 	rm -rf *.png *.tsv traj
@@ -17,7 +21,7 @@ clean:
 	rm -f inputs*.ka
 
 %.png: %-avg.tsv
-	${SCRIPTS}/coupled-epidemics-caseplot ${@:%.png=%}
+	${SCRIPTS}/${PLOT} ${@:%.png=%}
 
 %-avg.tsv: ${MODELS}/${MODEL}.ka
 	mkdir -p traj
