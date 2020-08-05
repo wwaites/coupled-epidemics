@@ -40,6 +40,7 @@ setup(name='coupled-epidemics',
       packages=find_packages(),
       install_requires=[
           'pandas',
+          'matplotlib',
       ],
       python_requires='>=3.1.*',
       package_data={

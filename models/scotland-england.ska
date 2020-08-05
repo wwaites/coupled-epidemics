@@ -1,0 +1,102 @@
+// -*- mode: kappa -*-
+
+// standard SEIR constants
+%var: beta   0.03    // probability of infection from contact
+%var: alpha  0.2     // progression from exposed to infectious
+%var: gamma  0.1429  // progression from infectious to removed
+
+////
+//// fragment of python code, set up constants for generating rules.
+//// this is a stratified model with the population binned into
+//// different groups and a contact matrix (units are number of
+//// contacts per day) is given.
+////
+// python
+import numpy as np
+from itertools import product
+
+dist  = np.array([0.1, 0.9])
+parts = ["sco", "eng"]
+n     = len(parts)
+
+c     = np.array([13.0, 13.0])
+d     = np.array([8.0,  10.0])
+t     = np.array([[0, 0.001],
+                  [0.0001, 0]])
+// end python
+
+// iterate for i in range(n):
+%var: c$i$     $c[i]$
+// end iterate
+
+// iterate for (i, j) in [(i, j) for i in range(n) for j in range(n) if i != j]:
+%var: t$i$$j$  $t[i,j]$
+// end iterate
+
+// individuals have disease progression, symptomaticity, isolation
+// and a partition
+%agent: P(x{s e i r} sym{y n} iso{y n} part{eng sco})
+
+// progression of individuals
+'progression'   P(x{e/i}) @ alpha
+'removal'       P(x{i/r}) @ gamma
+
+// iterate for i in range(n):
+'infection_$i$'  P(x{s/e}, iso{n}, part{$parts[i]$}), P(x{i}, iso{n}, part{$parts[i]$}) @ beta * c$i$ / p$i$
+// end iterate
+
+// iterate for (i, j) in [(i, j) for i in range(n) for j in range(n) if i != j]:
+'transport_$i$$j$' P(iso{n}, part{$parts[i]$/$parts[j]$}) @ t$i$$j$
+// end iterate
+
+%obs: S    |P(x{s})|
+%obs: E    |P(x{e})|
+%obs: I    |P(x{i})|
+%obs: R    |P(x{r})|
+
+// iterate for i in range(n):
+%obs: S$i$    |P(x{s}, part{$parts[i]$})|
+%obs: E$i$    |P(x{e}, part{$parts[i]$})|
+%obs: I$i$    |P(x{i}, part{$parts[i]$})|
+%obs: R$i$    |P(x{r}, part{$parts[i]$})|
+// end iterate
+
+// variables for population size and initialisation
+%var: N      100000
+// initially infectious
+%var: INIT_I 0.001*N
+// initially susceptible
+%var: INIT_S N - INIT_I
+
+////
+//// initialise the population according to the distribution given
+////
+// iterate for i in range(n):
+%init: INIT_I*$dist[i]$ P(x{i}, sym{n}, iso{n}, part{$parts[i]$})
+%init: INIT_S*$dist[i]$ P(x{s}, sym{n}, iso{n}, part{$parts[i]$})
+// end iterate
+
+// iterate for i in range(n):
+%var: p$i$ $dist[i]$*N
+%mod: [true] do \$UPDATE p$i$ |P(part{$parts[i]$})|; repeat [true]
+// end iterate
+
+//// lock down
+%mod: alarm 30 do
+// iterate for i in range(n):
+    \$UPDATE c$i$ $c[i]*0.3$;
+// end iterate
+//// and close the border
+// iterate for (i, j) in [(i, j) for i in range(n) for j in range(n) if i != j]:
+    \$UPDATE t$i$$j$ 0;
+// end iterate
+
+//// unlock asymmetrically
+%mod: alarm 180 do
+// iterate for i in range(n):
+    \$UPDATE c$i$ $d[i]$;
+// end iterate
+//// and open the border
+// iterate for (i, j) in [(i, j) for i in range(n) for j in range(n) if i != j]:
+    \$UPDATE t$i$$j$ $t[i,j]$;
+// end iterate

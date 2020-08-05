@@ -8,7 +8,8 @@ SCRIPTS=../scripts
 KASIM=KaSim -mode batch -u time -p 1 --no-log
 
 all:
-	${MAKE} MODEL=second-wave second-wave.png
+	${MAKE} MODEL=second-wave second-wave-avg.tsv
+	${MAKE} MODEL=scotland-england scotland-england-avg.tsv
 
 clean:
 	rm -rf *.png *.tsv traj

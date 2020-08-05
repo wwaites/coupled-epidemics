@@ -1,10 +1,11 @@
 SCRIPTS=../scripts
+MODELS=second-wave.ka scotland-england.ka
 
 all:
-	${MAKE} second-wave.ka
+	${MAKE} ${MODELS}
 
 clean:
-	rm -f second-wave.ka
+	rm -f ${MODELS}
 
-%.ka: %.pka
+%.ka: %.ska
 	${SCRIPTS}/stratify < $< > $@
